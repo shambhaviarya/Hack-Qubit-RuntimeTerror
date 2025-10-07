@@ -1,0 +1,320 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RuralEd Hub— Student Planner (Frontend)</title>
+  <style>
+    :root{
+      --bg:#0f1724; /* deep navy */
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#6ee7b7; /* mint */
+      --accent-2:#60a5fa; /* sky */
+      --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --radius:12px;
+      --max-width:1100px;
+      --shadow: 0 6px 18px rgba(2,6,23,0.6);
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,#071226 0%, #071a2a 100%); color:#e6eef6}.app{max-width:var(--max-width);margin:28px auto;padding:20px;display:grid;grid-template-columns:260px 1fr;gap:20px}
+
+/* Sidebar */
+.sidebar{background:linear-gradient(180deg,var(--card), rgba(10,16,28,0.6));border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);min-height:640px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#042028}
+.brand h1{font-size:16px;margin:0}
+.brand p{margin:0;font-size:12px;color:var(--muted)}
+
+.nav{margin-top:18px;display:flex;flex-direction:column;gap:6px}
+.nav button{background:transparent;border:0;padding:10px 12px;border-radius:10px;color:var(--muted);text-align:left;cursor:pointer;font-weight:600}
+.nav button.active, .nav button:hover{background:var(--glass);color:var(--accent-2)}
+
+.profile{margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,0.02);display:flex;gap:10px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#fef3c7,#fecaca);display:flex;align-items:center;justify-content:center;color:#2b2b2b;font-weight:700}
+.profile small{display:block;color:var(--muted)}
+
+/* Main */
+.main{min-height:640px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.search{flex:1;display:flex;gap:8px;align-items:center}
+.search input{flex:1;padding:10px 12px;border-radius:10px;border:0;background:var(--glass);color:inherit}
+.actions{display:flex;gap:10px;align-items:center}
+.btn{padding:10px 12px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022334;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+
+/* Planner cards */
+.grid{display:grid;grid-template-columns:1fr 420px;gap:18px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px;box-shadow:var(--shadow)}
+
+/* Today & Tasks */
+.today{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.today h2{margin:0}
+.tasks{display:flex;flex-direction:column;gap:10px}
+.task{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--glass-2)}
+.task input[type=checkbox]{width:18px;height:18px}
+.task .meta{flex:1}
+.task .meta h4{margin:0 0 3px 0;font-size:14px}
+.task .meta small{color:var(--muted)}
+
+/* Mini calendar */
+.mini-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.mini-cal .day{padding:8px;border-radius:8px;text-align:center;font-size:12px;background:transparent}
+.mini-cal .day.today{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022334;font-weight:700}
+
+/* Right column: Calendar & Progress */
+.calendar{height:420px;display:flex;flex-direction:column}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px;flex:1}
+.calendar-grid .cell{padding:10px;border-radius:10px;background:var(--glass);min-height:72px}
+.cell .date{font-size:12px;color:var(--muted)}
+.cell .events{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.event{padding:6px;border-radius:8px;font-size:13px;background:rgba(96,165,250,0.08);color:var(--accent-2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* responsive */
+@media (max-width:900px){
+  .app{grid-template-columns:1fr; padding:12px}
+  .grid{grid-template-columns:1fr}
+  .sidebar{order:2}
+  .main{order:1}
+}
+
+/* small helpers */
+.muted{color:var(--muted)}
+.pill{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:12px}
+
+  </style>
+</head>
+<body>
+  <div class="app" role="application">
+
+
+<main class="main">
+  <div class="topbar">
+    <div class="search">
+      <input type="search" id="q" placeholder="Search courses, tasks or notes..." aria-label="Search" />
+    </div>
+    <div class="actions">
+      <button class="btn" id="addTaskBtn">+ Add Task</button>
+      <button class="btn ghost" id="todayBtn">Today</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div class="today">
+        <div>
+          <h2 id="greeting"></h2>
+          <div class="muted">Plan your study, track progress, and never miss live classes</div>
+        </div>
+        <div class="pill" id="datePill">Oct 7, 2025</div>
+      </div>
+
+      <div>
+        <h3 style="margin:0 0 8px 0">Today's Tasks</h3>
+        <div class="tasks" id="tasksList">
+          <!-- Tasks injected by JS -->
+        </div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center">
+        <small class="muted">Upcoming this week</small>
+        <div class="muted">3 tasks • 1 live class</div>
+      </div>
+
+      <div class="mini-cal" id="miniCal" aria-hidden="false">
+        <!-- small days -->
+      </div>
+    </section>
+
+    <aside class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0">Monthly Calendar</h3>
+        <div class="muted">October 2025</div>
+      </div>
+
+      <div class="calendar" aria-label="Monthly calendar">
+        <div style="display:flex;gap:8px;margin-top:12px;font-size:12px;color:var(--muted)">
+          <div style="flex:1;text-align:center">Sun</div>
+          <div style="flex:1;text-align:center">Mon</div>
+          <div style="flex:1;text-align:center">Tue</div>
+          <div style="flex:1;text-align:center">Wed</div>
+          <div style="flex:1;text-align:center">Thu</div>
+          <div style="flex:1;text-align:center">Fri</div>
+          <div style="flex:1;text-align:center">Sat</div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- cells injected by JS -->
+        </div>
+
+        <div style="margin-top:12px">
+          <h4 style="margin:0 0 8px 0">Progress</h4>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="flex:1;background:rgba(255,255,255,0.03);height:12px;border-radius:8px;overflow:hidden">
+              <div id="progressBar" style="height:100%;width:48%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:8px"></div>
+            </div>
+            <div class="muted">48%</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+  </div>  <!-- Add Task Modal (simple) -->  <div id="modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6)">
+    <div style="width:420px;background:linear-gradient(180deg,#061224,#071430);padding:18px;border-radius:12px;box-shadow:var(--shadow)">
+      <h3 style="margin-top:0">Add Task</h3>
+      <label style="display:block;margin-top:8px">Title</label>
+      <input id="taskTitle" type="text" style="width:100%;padding:10px;border-radius:8px;border:0;background:var(--glass);color:inherit" />
+      <label style="display:block;margin-top:8px">Date & Time</label>
+      <input id="taskDate" type="datetime-local" style="width:100%;padding:10px;border-radius:8px;border:0;background:var(--glass);color:inherit" />
+      <label style="display:block;margin-top:8px">Type</label>
+      <select id="taskType" style="width:100%;padding:10px;border-radius:8px;border:0;background:var(--glass);color:inherit">
+        <option>Study</option>
+        <option>Live Class</option>
+        <option>Revision</option>
+        <option>Test</option>
+      </select>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn ghost" id="cancelAdd">Cancel</button>
+        <button class="btn" id="saveAdd">Save</button>
+      </div>
+    </div>
+  </div>  <script>
+    // --- Simple planner data (front-end only) ---
+    const sampleTasks = [
+      {id:1,title:'Math — Complete chapter 7 exercise',date:'2025-10-07T16:00',type:'Study',done:false},
+      {id:2,title:'Live: Physics — Electromagnetism',date:'2025-10-08T18:30',type:'Live Class',done:false},
+      {id:3,title:'Revision: Biology notes',date:'2025-10-10T09:00',type:'Revision',done:true},
+    ];
+
+    const tasksList = document.getElementById('tasksList');
+    const miniCal = document.getElementById('miniCal');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const datePill = document.getElementById('datePill');
+    const greeting = document.getElementById('greeting');
+
+    // Today's date (use fixed because system date could differ in some environments). We'll use user's local date.
+    const today = new Date();
+    const todayStr = today.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+    datePill.textContent = todayStr;
+
+    const hour = today.getHours();
+    if(hour<12) greeting.textContent = 'Good Morning, Shambhavi';
+    else if(hour<17) greeting.textContent = 'Good Afternoon, Shambhavi';
+    else greeting.textContent = 'Good Evening, Shambhavi';
+
+    function renderTasks(){
+      tasksList.innerHTML='';
+      sampleTasks.sort((a,b)=> new Date(a.date) - new Date(b.date));
+      sampleTasks.forEach(t=>{
+        const el = document.createElement('div'); el.className='task';
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!t.done;
+        cb.addEventListener('change',()=>{ t.done = cb.checked; renderTasks(); updateProgress(); });
+        const meta = document.createElement('div'); meta.className='meta';
+        const h = document.createElement('h4'); h.textContent = t.title; if(t.done) h.style.textDecoration='line-through';
+        const sm = document.createElement('small'); sm.className='muted'; sm.textContent = new Date(t.date).toLocaleString();
+        meta.appendChild(h); meta.appendChild(sm);
+        const tag = document.createElement('div'); tag.className='pill'; tag.textContent = t.type;
+        el.appendChild(cb); el.appendChild(meta); el.appendChild(tag);
+        tasksList.appendChild(el);
+      })
+    }
+
+    function renderMiniCal(){
+      miniCal.innerHTML='';
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const days = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+      const startDay = start.getDay();
+      // add blanks
+      for(let i=0;i<startDay;i++){ const d=document.createElement('div'); d.className='day'; d.innerHTML=''; miniCal.appendChild(d);} 
+      for(let i=1;i<=days;i++){
+        const d = document.createElement('div'); d.className='day'; d.textContent = i;
+        if(i===today.getDate()) d.classList.add('today');
+        miniCal.appendChild(d);
+      }
+    }
+
+    function renderCalendarGrid(){
+      calendarGrid.innerHTML='';
+      const year = today.getFullYear(), month = today.getMonth();
+      const first = new Date(year,month,1).getDay();
+      const days = new Date(year,month+1,0).getDate();
+      // fill leading blanks
+      for(let i=0;i<first;i++){ const c=document.createElement('div'); c.className='cell'; calendarGrid.appendChild(c); }
+      for(let d=1;d<=days;d++){
+        const c = document.createElement('div'); c.className='cell';
+        const dateDiv = document.createElement('div'); dateDiv.className='date'; dateDiv.textContent = d;
+        c.appendChild(dateDiv);
+        const events = document.createElement('div'); events.className='events';
+        // attach events
+        sampleTasks.forEach(ev=>{
+          const evDate = new Date(ev.date);
+          if(evDate.getFullYear()===year && evDate.getMonth()===month && evDate.getDate()===d){
+            const e = document.createElement('div'); e.className='event'; e.textContent = ev.title; events.appendChild(e);
+          }
+        })
+        c.appendChild(events);
+        calendarGrid.appendChild(c);
+      }
+    }
+
+    function updateProgress(){
+      const done = sampleTasks.filter(t=>t.done).length;
+      const pct = Math.round((done/sampleTasks.length)*100) || 0;
+      document.getElementById('progressBar').style.width = pct + '%';
+      // update text nearby
+      const muteds = document.querySelectorAll('.muted'); // not ideal but simple
+    }
+
+    // Modal interactions
+    const modal = document.getElementById('modal');
+    document.getElementById('addTaskBtn').addEventListener('click',()=>{ modal.style.display='flex';});
+    document.getElementById('cancelAdd').addEventListener('click',()=>{ modal.style.display='none';});
+    document.getElementById('saveAdd').addEventListener('click',()=>{
+      const title = document.getElementById('taskTitle').value.trim();
+      const date = document.getElementById('taskDate').value;
+      const type = document.getElementById('taskType').value;
+      if(!title || !date){ alert('Please add title and date'); return; }
+      sampleTasks.push({id:Date.now(),title, date, type, done:false});
+      modal.style.display='none';
+      document.getElementById('taskTitle').value=''; document.getElementById('taskDate').value='';
+      renderTasks(); renderCalendarGrid(); updateProgress();
+    })
+
+    document.getElementById('todayBtn').addEventListener('click',()=>{
+      // jump to today: scroll calendar to current date cell
+      const cells = calendarGrid.querySelectorAll('.cell');
+      const idx = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getDate() + new Date(today.getFullYear(), today.getMonth(), 1).getDay() - 1;
+      const cell = cells[idx]; if(cell) cell.scrollIntoView({behavior:'smooth',block:'center'});
+    })
+
+    // initial render
+    renderTasks(); renderMiniCal(); renderCalendarGrid(); updateProgress();
+
+    // Simple search
+    document.getElementById('q').addEventListener('input', (e)=>{
+      const q = e.target.value.toLowerCase();
+      const matches = sampleTasks.filter(t=> t.title.toLowerCase().includes(q) || t.type.toLowerCase().includes(q));
+      tasksList.innerHTML='';
+      matches.forEach(t=>{
+        const el = document.createElement('div'); el.className='task';
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!t.done;
+        const meta = document.createElement('div'); meta.className='meta';
+        const h = document.createElement('h4'); h.textContent = t.title; if(t.done) h.style.textDecoration='line-through';
+        const sm = document.createElement('small'); sm.className='muted'; sm.textContent = new Date(t.date).toLocaleString();
+        meta.appendChild(h); meta.appendChild(sm);
+        const tag = document.createElement('div'); tag.className='pill'; tag.textContent = t.type;
+        el.appendChild(cb); el.appendChild(meta); el.appendChild(tag);
+        tasksList.appendChild(el);
+      })
+      if(q==='') renderTasks();
+    })
+
+    // Accessibility hint: allow Esc to close modal
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') modal.style.display='none'; });
+  </script></body>
+</html>
